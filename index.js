@@ -41,6 +41,7 @@ async function run() {
       .collection("appointmentOptions");
     const bookingCollection = client.db("doctorsPortal").collection("bookings");
     const userCollection = client.db("doctorsPortal").collection("users");
+    const doctorsCollection = client.db("doctorsPortal").collection("doctors");
 
     // use Aggregate to query multiple collection and then merge data
     app.get("/appointmentOptions", async (req, res) => {
@@ -71,6 +72,15 @@ async function run() {
         option.slots = remainingSlots;
       });
       res.send(options);
+    });
+
+    app.get("/appointmentSpecialty", async (req, res) => {
+      const query = {};
+      const result = await appointmentOptionCollection
+        .find(query)
+        .project({ name: 1 })
+        .toArray();
+      res.send(result);
     });
 
     /*
@@ -116,7 +126,7 @@ async function run() {
       const user = await userCollection.findOne(query);
       if (user) {
         const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, {
-          expiresIn: "1h",
+          expiresIn: "1d",
         });
         return res.send({ accessToken: token });
       }
@@ -166,6 +176,20 @@ async function run() {
       );
       res.send(result);
     });
+
+    app.get('/doctors', async (req, res) => {
+      const query = {}
+      const doctors = await doctorsCollection.find(query).toArray();
+      res.send(doctors)
+    })
+
+    app.post('/doctors', async(req, res) => {
+      const doctor = req.body;
+      const result = await doctorsCollection.insertOne(doctor)
+      res.send(result);
+    })
+
+
   } finally {
   }
 }
