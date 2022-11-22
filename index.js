@@ -150,7 +150,7 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/create-payment-intent", async (req, res) => {
+    app.post("/create-payment-intent",verifyJWT, async (req, res) => {
       const booking = req.body;
       const price = booking.price;
       const amount = price * 100;
@@ -166,7 +166,7 @@ async function run() {
       });
     });
 
-    app.post("/payments", async (req, res) => {
+    app.post("/payments",verifyJWT, async (req, res) => {
       const payment = req.body;
       const result = await paymentsCollection.insertOne(payment);
       const id = payment.bookingId;
